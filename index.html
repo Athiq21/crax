@@ -9,25 +9,25 @@
       font-family: Arial, sans-serif;
     }
     table {
-      width: 20%;
+      width: 60%;
       border-collapse: collapse;
-      table-layout: fixed; /* Ensures the table fits the available space */
+      table-layout: fixed;
     }
     th, td {
       padding: 5px;
       text-align: center;
       border: 1px solid #000000;
-      word-wrap: break-word; /* Ensures text wraps correctly */
+      word-wrap: break-word; 
     }
     th {
-      background-color: #f4f4f4;
+      background-color: #9541b6;
       font-size: 16px; 
     }
     td:nth-child(2), th:nth-child(2) {
-      width: 20%; 
+      width: 5%; 
     }
     td:nth-child(3), th:nth-child(3) {
-      width: 10%; 
+      width: 5%; 
     }
     td:nth-child(1), th:nth-child(1) {
       width: 30%; 
@@ -39,18 +39,18 @@
     }
     .icons {
       display: flex;
-      gap: 5px; 
+      gap: 5px;
     }
     .icons div {
       width: 10px;
       height: 30px;
       background-color: #000000;
-      border-radius: 5px; 
+      border-radius: 5px;
       opacity: 1;
-      transition: opacity 0.3s; 
+      transition: opacity 0.3s;
     }
     .icons div.transparent {
-      opacity: 0.3; 
+      opacity: 0.3;
     }
     .points {
       font-size: 20px;
@@ -72,7 +72,7 @@
       <tr>
         <th>Teams</th>
         <th>Alive</th>
-        <th>Points</th>
+        <th>Pts</th>
         <th>Image</th> <!-- New column for images -->
       </tr>
     </thead>
@@ -82,7 +82,6 @@
   <script>
     const sheetUrl = 'https://docs.google.com/spreadsheets/d/1L91qzMVS7X00ivpiTnlvoZt6USCV7j1FxTFQ2paSxGk/gviz/tq?tqx=out:json';
 
-    // Function to fetch and display the data from the Google Sheet
     async function fetchData() {
       try {
         const response = await fetch(sheetUrl);
@@ -99,7 +98,7 @@
         rows.forEach(row => {
           const teamName = row.c[0]?.v || 'Unknown Team';
           const alivePlayers = row.c[1]?.v || 0;
-          const points = row.c[2]?.v || 0; // Assuming points are in the 3rd column
+          const points = row.c[2]?.v || 0;
           const imageUrl = row.c[3]?.v || ''; // Assuming the 4th column contains image URLs
 
           // Create a new row for each team
@@ -119,12 +118,9 @@
           // Show up to 4 player icons (rectangles)
           for (let i = 0; i < 4; i++) {
             const rectangle = document.createElement('div');
-
-            // Make rectangles for dead players transparent
             if (i >= alivePlayers) {
               rectangle.classList.add('transparent');
             }
-
             iconsDiv.appendChild(rectangle);
           }
 
@@ -134,18 +130,20 @@
           // Points column
           const pointsCell = document.createElement('td');
           pointsCell.className = 'points';
-          pointsCell.textContent = points; 
+          pointsCell.textContent = points;
           rowDiv.appendChild(pointsCell);
 
           // Image column
           const imageCell = document.createElement('td');
           if (imageUrl) {
             const imgElement = document.createElement('img');
-            imgElement.src = imageUrl; // Set the image URL from the Google Sheet
+            // Ensure correct Google Drive format
+            imgElement.src = `https://drive.google.com/uc?export=view&id=${extractImageId(imageUrl)}`;
             imgElement.className = 'team-image'; // Apply the image class for sizing
+            imgElement.alt = 'Team Image';
             imageCell.appendChild(imgElement);
           } else {
-            imageCell.textContent = 'No Image'; // If there's no image URL, show text
+            imageCell.textContent = 'No Image'; // Fallback if no image URL
           }
           rowDiv.appendChild(imageCell);
 
@@ -157,9 +155,14 @@
       }
     }
 
-    fetchData();
+    function extractImageId(url) {
+      const regex = /(?:https:\/\/drive\.google\.com\/file\/d\/)([^\/]+)/;
+      const match = url.match(regex);
+      return match ? match[1] : '';
+    }
 
+    fetchData();
     setInterval(fetchData, 100000); 
   </script>
 </body>
-</html> 
+</html>
